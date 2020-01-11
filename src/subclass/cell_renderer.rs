@@ -122,6 +122,14 @@ pub trait CellRendererImpl: CellRendererImplExt + ObjectImpl + 'static {
             flags,
         )
     }
+
+    fn editing_canceled(&self, renderer: &CellRenderer) {
+        self.parent_editing_canceled(renderer)
+    }
+
+    fn editing_started(&self, renderer: &CellRenderer, editable: &CellEditable, path: &str) {
+        self.parent_editing_started(renderer, editable, path)
+    }
 }
 
 pub trait CellRendererImplExt {
@@ -184,6 +192,8 @@ pub trait CellRendererImplExt {
         cell_area: &gdk::Rectangle,
         flags: CellRendererState,
     ) -> Option<CellEditable>;
+    fn parent_editing_canceled(&self, renderer: &CellRenderer);
+    fn parent_editing_started(&self, renderer: &CellRenderer, editable: &CellEditable, path: &str);
 }
 
 impl<T: CellRendererImpl + ObjectImpl> CellRendererImplExt for T {
@@ -308,7 +318,7 @@ impl<T: CellRendererImpl + ObjectImpl> CellRendererImplExt for T {
                 flags.to_glib(),
                 cell_area.to_glib_none().0,
                 aligned_area.to_glib_none_mut().0,
-                );
+            );
             aligned_area
         }
     }
@@ -398,6 +408,32 @@ impl<T: CellRendererImpl + ObjectImpl> CellRendererImplExt for T {
             }
         }
     }
+
+    fn parent_editing_canceled(&self, renderer: &CellRenderer) {
+        unsafe {
+            let data = self.get_type_data();
+            let parent_class =
+                data.as_ref().get_parent_class() as *mut gtk_sys::GtkCellRendererClass;
+            if let Some(f) = (*parent_class).editing_canceled {
+                f(renderer.to_glib_none().0)
+            }
+        }
+    }
+
+    fn parent_editing_started(&self, renderer: &CellRenderer, editable: &CellEditable, path: &str) {
+        unsafe {
+            let data = self.get_type_data();
+            let parent_class =
+                data.as_ref().get_parent_class() as *mut gtk_sys::GtkCellRendererClass;
+            if let Some(f) = (*parent_class).editing_started {
+                f(
+                    renderer.to_glib_none().0,
+                    editable.to_glib_none().0,
+                    path.to_glib_none().0,
+                )
+            }
+        }
+    }
 }
 
 unsafe impl<T: ObjectSubclass + CellRendererImpl> IsSubclassable<T> for CellRendererClass {
@@ -416,6 +452,8 @@ unsafe impl<T: ObjectSubclass + CellRendererImpl> IsSubclassable<T> for CellRend
             klass.render = Some(cell_renderer_render::<T>);
             klass.activate = Some(cell_renderer_activate::<T>);
             klass.start_editing = Some(cell_renderer_start_editing::<T>);
+            klass.editing_started = Some(cell_renderer_editing_started::<T>);
+            klass.editing_canceled = Some(cell_renderer_editing_canceled::<T>);
         }
     }
 }
@@ -631,4 +669,31 @@ where
     )
     .to_glib_none()
     .0
+}
+
+unsafe extern "C" fn cell_renderer_editing_canceled<T: ObjectSubclass>(
+    ptr: *mut gtk_sys::GtkCellRenderer,
+) where
+    T: CellRendererImpl,
+{
+    let instance = &*(ptr as *mut T::Instance);
+    let imp = instance.get_impl();
+    let wrap: CellRenderer = from_glib_borrow(ptr);
+
+    imp.editing_canceled(&wrap);
+}
+
+unsafe extern "C" fn cell_renderer_editing_started<T: ObjectSubclass>(
+    ptr: *mut gtk_sys::GtkCellRenderer,
+    editableptr: *mut gtk_sys::GtkCellEditable,
+    pathptr: *const c_char,
+) where
+    T: CellRendererImpl,
+{
+    let instance = &*(ptr as *mut T::Instance);
+    let imp = instance.get_impl();
+    let wrap: CellRenderer = from_glib_borrow(ptr);
+    let editable = from_glib_borrow(editableptr);
+
+    imp.editing_started(&wrap, &editable, &GString::from_glib_borrow(pathptr));
 }
