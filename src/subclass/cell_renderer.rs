@@ -10,8 +10,8 @@ use cairo;
 use glib::object::IsA;
 use glib::subclass::prelude::*;
 use glib::translate::*;
-use glib::ObjectClass;
 use glib::GString;
+use glib::ObjectClass;
 
 use CellEditable;
 use CellRenderer;
@@ -192,11 +192,8 @@ impl<T: CellRendererImpl + ObjectImpl> CellRendererImplExt for T {
             let data = self.get_type_data();
             let parent_class =
                 data.as_ref().get_parent_class() as *mut gtk_sys::GtkCellRendererClass;
-            if let Some(f) = (*parent_class).get_request_mode {
-                from_glib(f(renderer.to_glib_none().0))
-            } else {
-                SizeRequestMode::__Unknown(0)
-            }
+            let f = (*parent_class).get_request_mode.unwrap();
+            from_glib(f(renderer.to_glib_none().0))
         }
     }
 
@@ -209,21 +206,17 @@ impl<T: CellRendererImpl + ObjectImpl> CellRendererImplExt for T {
             let data = self.get_type_data();
             let parent_class =
                 data.as_ref().get_parent_class() as *mut gtk_sys::GtkCellRendererClass;
-            if let Some(f) = (*parent_class).get_preferred_width {
-                let mut minimum_size = mem::MaybeUninit::uninit();
-                let mut natural_size = mem::MaybeUninit::uninit();
-                f(
-                    renderer.to_glib_none().0,
-                    widget.as_ref().to_glib_none().0,
-                    minimum_size.as_mut_ptr(),
-                    natural_size.as_mut_ptr(),
-                );
-                let minimum_size = minimum_size.assume_init();
-                let natural_size = natural_size.assume_init();
-                (minimum_size, natural_size)
-            } else {
-                (-1, -1)
-            }
+            let f = (*parent_class).get_preferred_width.unwrap();
+
+            let mut minimum_size = mem::MaybeUninit::uninit();
+            let mut natural_size = mem::MaybeUninit::uninit();
+            f(
+                renderer.to_glib_none().0,
+                widget.as_ref().to_glib_none().0,
+                minimum_size.as_mut_ptr(),
+                natural_size.as_mut_ptr(),
+            );
+            (minimum_size.assume_init(), natural_size.assume_init())
         }
     }
 
@@ -237,22 +230,18 @@ impl<T: CellRendererImpl + ObjectImpl> CellRendererImplExt for T {
             let data = self.get_type_data();
             let parent_class =
                 data.as_ref().get_parent_class() as *mut gtk_sys::GtkCellRendererClass;
-            if let Some(f) = (*parent_class).get_preferred_width_for_height {
-                let mut minimum_size = mem::MaybeUninit::uninit();
-                let mut natural_size = mem::MaybeUninit::uninit();
-                f(
-                    renderer.to_glib_none().0,
-                    widget.as_ref().to_glib_none().0,
-                    height,
-                    minimum_size.as_mut_ptr(),
-                    natural_size.as_mut_ptr(),
-                );
-                let minimum_size = minimum_size.assume_init();
-                let natural_size = natural_size.assume_init();
-                (minimum_size, natural_size)
-            } else {
-                (-1, -1)
-            }
+            let f = (*parent_class).get_preferred_width_for_height.unwrap();
+
+            let mut minimum_size = mem::MaybeUninit::uninit();
+            let mut natural_size = mem::MaybeUninit::uninit();
+            f(
+                renderer.to_glib_none().0,
+                widget.as_ref().to_glib_none().0,
+                height,
+                minimum_size.as_mut_ptr(),
+                natural_size.as_mut_ptr(),
+            );
+            (minimum_size.assume_init(), natural_size.assume_init())
         }
     }
     fn parent_get_preferred_height<P: IsA<Widget>>(
@@ -264,21 +253,16 @@ impl<T: CellRendererImpl + ObjectImpl> CellRendererImplExt for T {
             let data = self.get_type_data();
             let parent_class =
                 data.as_ref().get_parent_class() as *mut gtk_sys::GtkCellRendererClass;
-            if let Some(f) = (*parent_class).get_preferred_height {
-                let mut minimum_size = mem::MaybeUninit::uninit();
-                let mut natural_size = mem::MaybeUninit::uninit();
-                f(
-                    renderer.to_glib_none().0,
-                    widget.as_ref().to_glib_none().0,
-                    minimum_size.as_mut_ptr(),
-                    natural_size.as_mut_ptr(),
-                );
-                let minimum_size = minimum_size.assume_init();
-                let natural_size = natural_size.assume_init();
-                (minimum_size, natural_size)
-            } else {
-                (-1, -1)
-            }
+            let f = (*parent_class).get_preferred_height.unwrap();
+            let mut minimum_size = mem::MaybeUninit::uninit();
+            let mut natural_size = mem::MaybeUninit::uninit();
+            f(
+                renderer.to_glib_none().0,
+                widget.as_ref().to_glib_none().0,
+                minimum_size.as_mut_ptr(),
+                natural_size.as_mut_ptr(),
+            );
+            (minimum_size.assume_init(), natural_size.assume_init())
         }
     }
     fn parent_get_preferred_height_for_width<P: IsA<Widget>>(
@@ -291,22 +275,17 @@ impl<T: CellRendererImpl + ObjectImpl> CellRendererImplExt for T {
             let data = self.get_type_data();
             let parent_class =
                 data.as_ref().get_parent_class() as *mut gtk_sys::GtkCellRendererClass;
-            if let Some(f) = (*parent_class).get_preferred_height_for_width {
-                let mut minimum_size = mem::MaybeUninit::uninit();
-                let mut natural_size = mem::MaybeUninit::uninit();
-                f(
-                    renderer.to_glib_none().0,
-                    widget.as_ref().to_glib_none().0,
-                    width,
-                    minimum_size.as_mut_ptr(),
-                    natural_size.as_mut_ptr(),
-                );
-                let minimum_size = minimum_size.assume_init();
-                let natural_size = natural_size.assume_init();
-                (minimum_size, natural_size)
-            } else {
-                (-1, -1)
-            }
+            let f = (*parent_class).get_preferred_height_for_width.unwrap();
+            let mut minimum_size = mem::MaybeUninit::uninit();
+            let mut natural_size = mem::MaybeUninit::uninit();
+            f(
+                renderer.to_glib_none().0,
+                widget.as_ref().to_glib_none().0,
+                width,
+                minimum_size.as_mut_ptr(),
+                natural_size.as_mut_ptr(),
+            );
+            (minimum_size.assume_init(), natural_size.assume_init())
         }
     }
 
@@ -322,15 +301,14 @@ impl<T: CellRendererImpl + ObjectImpl> CellRendererImplExt for T {
             let parent_class =
                 data.as_ref().get_parent_class() as *mut gtk_sys::GtkCellRendererClass;
             let mut aligned_area = gdk::Rectangle::uninitialized();
-            if let Some(f) = (*parent_class).get_aligned_area {
-                f(
-                    renderer.to_glib_none().0,
-                    widget.as_ref().to_glib_none().0,
-                    flags.to_glib(),
-                    cell_area.to_glib_none().0,
-                    aligned_area.to_glib_none_mut().0,
+            let f = (*parent_class).get_aligned_area.unwrap();
+            f(
+                renderer.to_glib_none().0,
+                widget.as_ref().to_glib_none().0,
+                flags.to_glib(),
+                cell_area.to_glib_none().0,
+                aligned_area.to_glib_none_mut().0,
                 );
-            }
             aligned_area
         }
     }
@@ -565,9 +543,7 @@ unsafe extern "C" fn cell_renderer_get_aligned_area<T: ObjectSubclass>(
         from_glib(flags),
         &from_glib_borrow(cellarea),
     );
-    if !alignedptr.is_null() {
-        *alignedptr = *rectangle.to_glib_none().0;
-    }
+    *alignedptr = *rectangle.to_glib_none().0;
 }
 
 unsafe extern "C" fn cell_renderer_render<T: ObjectSubclass>(
@@ -612,11 +588,11 @@ where
     let imp = instance.get_impl();
     let wrap: CellRenderer = from_glib_borrow(ptr);
     let widget: Widget = from_glib_borrow(wdgtptr);
-    let evt: Option<gdk::Event> = from_glib_none(evtptr);
+    let evt: gdk::Event = from_glib_borrow(evtptr);
 
     imp.activate(
         &wrap,
-        evt.as_ref().unwrap(),
+        &evt,
         &widget,
         &GString::from_glib_borrow(pathptr),
         &from_glib_borrow(bgptr),
@@ -642,7 +618,7 @@ where
     let imp = instance.get_impl();
     let wrap: CellRenderer = from_glib_borrow(ptr);
     let widget: Widget = from_glib_borrow(wdgtptr);
-    let evt: Option<gdk::Event> = from_glib_none(evtptr);
+    let evt: Option<gdk::Event> = from_glib_borrow(evtptr);
 
     imp.start_editing(
         &wrap,
