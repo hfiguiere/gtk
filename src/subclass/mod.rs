@@ -10,6 +10,7 @@ pub mod cell_renderer;
 pub mod cell_renderer_pixbuf;
 pub mod container;
 pub mod dialog;
+pub mod drawing_area;
 pub mod event_box;
 pub mod header_bar;
 pub mod icon_view;
@@ -26,6 +27,7 @@ pub mod prelude {
     pub use super::cell_renderer_pixbuf::CellRendererPixbufImpl;
     pub use super::container::ContainerImpl;
     pub use super::dialog::DialogImpl;
+    pub use super::drawing_area::DrawingAreaImpl;
     pub use super::event_box::EventBoxImpl;
     pub use super::header_bar::HeaderBarImpl;
     pub use super::icon_view::IconViewImpl;
